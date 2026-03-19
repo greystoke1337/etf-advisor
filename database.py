@@ -8,7 +8,7 @@ from sqlalchemy import (
     create_engine, Column, Integer, String, Float, Date, DateTime,
     Boolean, Text, UniqueConstraint, Index
 )
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///etf_advisor.db")
