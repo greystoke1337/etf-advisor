@@ -227,7 +227,7 @@ def get_chart_data(ticker: str, db: Session, months: int = 12) -> dict:
         "prices": [round(float(v), 2) for v in df["close"]],
         "sma50": [round(float(v), 2) if pd.notna(v) else None for v in df["sma50"]],
         "sma200": [round(float(v), 2) if pd.notna(v) else None for v in df["sma200"]],
-        "volumes": [int(v) for v in df["volume"]],
+        "volumes": [int(v) if pd.notna(v) else 0 for v in df["volume"]],
     }
 
 
@@ -296,13 +296,21 @@ def calculate_dca_projection(
     total_return_pct = round((total_return / total_invested) * 100, 2) if total_invested > 0 else 0
     avg_cost = round(total_invested / total_units, 2) if total_units > 0 else 0
 
-    # Add dividend income
+    # Add dividend income (use units held at time of each dividend)
     div_prices = db.query(ETFPrice).filter(
         ETFPrice.ticker == ticker,
         ETFPrice.date >= cutoff,
         ETFPrice.dividends > 0,
-    ).all()
-    total_dividends = sum(p.dividends * total_units for p in div_prices) if div_prices else 0
+    ).order_by(ETFPrice.date).all()
+    total_dividends = 0.0
+    if div_prices:
+        for dp in div_prices:
+            # Find how many units were held on this dividend date
+            units_at_date = 0.0
+            for buy in monthly_buys:
+                if buy["date"] <= dp.date.isoformat():
+                    units_at_date = buy["total_units"]
+            total_dividends += dp.dividends * units_at_date
 
     return {
         "monthly_amount": monthly_amount,

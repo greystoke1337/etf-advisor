@@ -82,7 +82,7 @@ def fetch_etf_data(ticker: str, db: Session, full_refresh: bool = False) -> dict
                     high=round(float(row.get("High", 0)), 4),
                     low=round(float(row.get("Low", 0)), 4),
                     close=round(float(row.get("Close", 0)), 4),
-                    volume=int(row.get("Volume", 0)),
+                    volume=int(row.get("Volume", 0)) if pd.notna(row.get("Volume", 0)) else 0,
                     dividends=round(float(row.get("Dividends", 0)), 6),
                 )
                 db.add(price)
@@ -134,8 +134,12 @@ def _update_etf_info(ticker: str, etf: yf.Ticker, db: Session):
                     # Look for annual report expense ratio
                     if "Annual Report Expense Ratio (net)" in ops.index:
                         val = ops.loc["Annual Report Expense Ratio (net)"].values
-                        if len(val) > 0 and pd.notna(val[0]):
-                            expense_ratio = float(val[0])
+                    elif "Annual Report Expense Ratio" in ops.index:
+                        val = ops.loc["Annual Report Expense Ratio"].values
+                    else:
+                        val = []
+                    if len(val) > 0 and pd.notna(val[0]):
+                        expense_ratio = float(val[0])
             except Exception:
                 pass
 
