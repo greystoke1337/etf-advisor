@@ -173,8 +173,9 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ETF Advisor</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💲</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
     <style>
         :root {
@@ -194,6 +195,155 @@ DASHBOARD_HTML = """<!DOCTYPE html>
             --font-mono: 'JetBrains Mono', monospace;
             --radius: 12px;
             --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        /* PFD (cockpit) theme overrides */
+        [data-theme="pfd"] {
+            --bg: #0a0e14;
+            --surface: #111820;
+            --surface-dim: #0d1218;
+            --text: #d0d0d0;
+            --text-muted: #5a6a7a;
+            --text-faint: #3a4a5a;
+            --accent: #00ff41;
+            --accent-light: rgba(0,255,65,0.08);
+            --danger: #ff3333;
+            --danger-light: rgba(255,51,51,0.08);
+            --border: #1e2a3a;
+            --font-display: 'Share Tech Mono', 'JetBrains Mono', monospace;
+            --font-body: 'Share Tech Mono', 'JetBrains Mono', monospace;
+            --font-mono: 'Share Tech Mono', 'JetBrains Mono', monospace;
+            --radius: 0px;
+            --shadow: 0 0 8px rgba(0,229,255,0.05), inset 0 0 1px rgba(0,229,255,0.1);
+        }
+
+        /* PFD scanline overlay */
+        [data-theme="pfd"] body {
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+            background-attachment: fixed;
+        }
+
+        /* PFD CRT vignette */
+        [data-theme="pfd"] body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* PFD glowing readouts */
+        [data-theme="pfd"] .price-big { color: #00e5ff; text-shadow: 0 0 6px rgba(0,229,255,0.4); }
+        [data-theme="pfd"] .metric-value { color: #00e5ff; text-shadow: 0 0 6px rgba(0,229,255,0.4); }
+        [data-theme="pfd"] .dca-stat-value { color: #00ff41; text-shadow: 0 0 6px rgba(0,255,65,0.4); }
+        [data-theme="pfd"] .div-table td { color: #00ff41; }
+        [data-theme="pfd"] .positive { color: #00ff41; text-shadow: 0 0 6px rgba(0,255,65,0.4); }
+        [data-theme="pfd"] .negative { color: #ff3333; }
+        [data-theme="pfd"] .dca-section h2 { color: #ffbf00; text-shadow: 0 0 6px rgba(255,191,0,0.4); }
+
+        /* PFD trend badges */
+        [data-theme="pfd"] .trend-bullish { background: rgba(0,255,65,0.1); color: #00ff41; border: 1px solid #00ff41; }
+        [data-theme="pfd"] .trend-bearish { background: rgba(255,51,51,0.1); color: #ff3333; border: 1px solid #ff3333; }
+        [data-theme="pfd"] .trend-neutral { background: rgba(255,191,0,0.08); color: #ffbf00; border: 1px solid #ffbf00; }
+
+        /* PFD layout tweaks */
+        [data-theme="pfd"] .container { max-width: 1100px; }
+        [data-theme="pfd"] .metrics-grid { gap: 2px; }
+        [data-theme="pfd"] .dca-stats { gap: 2px; }
+        [data-theme="pfd"] header h1 { color: #00e5ff; text-shadow: 0 0 6px rgba(0,229,255,0.4); letter-spacing: 0.15em; text-transform: uppercase; font-size: 18px; }
+
+        /* PFD annunciator accent line on metric cards */
+        [data-theme="pfd"] .metric-card { position: relative; }
+        [data-theme="pfd"] .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: #00e5ff;
+            opacity: 0.3;
+        }
+
+        /* PFD chart crosshair */
+        [data-theme="pfd"] .chart-canvas-wrap::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0; right: 0;
+            height: 1px;
+            background: rgba(0,229,255,0.15);
+            pointer-events: none;
+        }
+
+        /* PFD period tabs */
+        [data-theme="pfd"] .period-tabs { gap: 0; background: transparent; padding: 0; border-radius: 0; }
+        [data-theme="pfd"] .period-tab { border-radius: 0; margin-left: -1px; background: var(--surface-dim); }
+        [data-theme="pfd"] .period-tab:first-child { margin-left: 0; }
+        [data-theme="pfd"] .period-tab.active {
+            background: rgba(0,229,255,0.1);
+            color: #00e5ff;
+            border-color: #00e5ff;
+            box-shadow: 0 0 6px rgba(0,229,255,0.4);
+            z-index: 1;
+            position: relative;
+        }
+
+        /* PFD input & buttons */
+        [data-theme="pfd"] .add-etf-bar input { background: var(--surface-dim); color: #00e5ff; }
+        [data-theme="pfd"] .add-etf-bar input:focus { border-color: #00e5ff; box-shadow: 0 0 6px rgba(0,229,255,0.4); }
+        [data-theme="pfd"] .btn { color: #00e5ff; text-transform: uppercase; letter-spacing: 0.08em; }
+        [data-theme="pfd"] .btn:hover { border-color: #00e5ff; box-shadow: 0 0 6px rgba(0,229,255,0.4); }
+        [data-theme="pfd"] .btn-primary { background: rgba(0,229,255,0.1); color: #00e5ff; border-color: #00e5ff; }
+
+        /* PFD dividend table */
+        [data-theme="pfd"] .div-table th { border-bottom-color: #00e5ff; }
+        [data-theme="pfd"] .div-table tr:hover td { background: rgba(0,229,255,0.04); }
+
+        /* Theme toggle switch */
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .theme-switch input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 36px;
+            height: 20px;
+            background: var(--surface-dim);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .theme-switch input::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .theme-switch input:checked {
+            background: rgba(0,229,255,0.15);
+            border-color: #00e5ff;
+        }
+        .theme-switch input:checked::before {
+            transform: translateX(16px);
+            background: #00e5ff;
+        }
+        .theme-switch-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -537,6 +687,10 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 <div class="subtitle" id="lastUpdated">Loading...</div>
             </div>
             <div class="actions">
+                <label class="theme-switch">
+                    <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                    <span class="theme-switch-label">PFD</span>
+                </label>
                 <button class="btn" onclick="triggerFetch()" id="fetchBtn">↻ Refresh Data</button>
             </div>
         </header>
@@ -559,6 +713,54 @@ DASHBOARD_HTML = """<!DOCTYPE html>
     <script>
     const API = '';
     let charts = {};
+    let activePeriods = {};
+
+    // Theme support
+    function toggleTheme() {
+        const isPFD = document.getElementById('themeToggle').checked;
+        document.documentElement.setAttribute('data-theme', isPFD ? 'pfd' : '');
+        localStorage.setItem('etf-theme', isPFD ? 'pfd' : 'classic');
+        reloadAllCharts();
+    }
+
+    function getChartColors() {
+        const isPFD = document.documentElement.getAttribute('data-theme') === 'pfd';
+        return isPFD ? {
+            price: '#00e5ff', priceFill: 'rgba(0,229,255,0.06)',
+            sma50: '#00ff41', sma200: '#ffbf00',
+            grid: 'rgba(0,229,255,0.06)', gridX: 'rgba(0,229,255,0.06)',
+            tick: '#5a6a7a',
+            tooltip: '#1a2230', tooltipBorder: '#00e5ff', tooltipTitle: '#00e5ff', tooltipBody: '#d0d0d0',
+            legendColor: '#5a6a7a',
+            font: "'Share Tech Mono'",
+            cornerRadius: 0,
+        } : {
+            price: '#1a1a1a', priceFill: 'rgba(26,26,26,0.04)',
+            sma50: '#2d6a4f', sma200: '#c1292e',
+            grid: '#f0efe9', gridX: 'transparent',
+            tick: '#aaa',
+            tooltip: '#1a1a1a', tooltipBorder: 'transparent', tooltipTitle: '#fff', tooltipBody: '#fff',
+            legendColor: '#777',
+            font: "'JetBrains Mono'",
+            cornerRadius: 8,
+        };
+    }
+
+    async function reloadAllCharts() {
+        for (const ticker of Object.keys(activePeriods)) {
+            await loadChart(ticker, activePeriods[ticker]);
+        }
+    }
+
+    // Restore saved theme on page load
+    (function() {
+        const saved = localStorage.getItem('etf-theme');
+        if (saved === 'pfd') {
+            document.documentElement.setAttribute('data-theme', 'pfd');
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) toggle.checked = true;
+        }
+    })();
 
     async function loadDashboard() {
         const etfsRes = await fetch(`${API}/api/etfs`);
@@ -765,6 +967,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         const res = await fetch(`${API}/api/chart/${ticker}?months=${months}`);
         const data = await res.json();
 
+        activePeriods[ticker] = months;
+
         // Update active tab
         document.querySelectorAll(`.period-tab[data-ticker="${ticker}"]`).forEach(t => {
             t.classList.toggle('active', parseInt(t.dataset.months) === months);
@@ -775,6 +979,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
         const ctx = document.getElementById(`chart-${shortTicker}`);
         if (!ctx) return;
 
+        const c = getChartColors();
+
         charts[ticker] = new Chart(ctx, {
             type: 'line',
             data: {
@@ -783,8 +989,8 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                     {
                         label: 'Price',
                         data: data.prices,
-                        borderColor: '#1a1a1a',
-                        backgroundColor: 'rgba(26,26,26,0.04)',
+                        borderColor: c.price,
+                        backgroundColor: c.priceFill,
                         borderWidth: 2,
                         pointRadius: 0,
                         fill: true,
@@ -793,7 +999,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                     {
                         label: 'SMA-50',
                         data: data.sma50,
-                        borderColor: '#2d6a4f',
+                        borderColor: c.sma50,
                         borderWidth: 1.5,
                         borderDash: [6, 3],
                         pointRadius: 0,
@@ -802,7 +1008,7 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                     {
                         label: 'SMA-200',
                         data: data.sma200,
-                        borderColor: '#c1292e',
+                        borderColor: c.sma200,
                         borderWidth: 1.5,
                         borderDash: [6, 3],
                         pointRadius: 0,
@@ -824,16 +1030,21 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                         labels: {
                             usePointStyle: true,
                             pointStyle: 'line',
-                            font: { family: "'Instrument Sans'", size: 12 },
+                            color: c.legendColor,
+                            font: { family: c.font, size: 12 },
                             padding: 16,
                         }
                     },
                     tooltip: {
-                        backgroundColor: '#1a1a1a',
-                        titleFont: { family: "'JetBrains Mono'", size: 12 },
-                        bodyFont: { family: "'JetBrains Mono'", size: 12 },
+                        backgroundColor: c.tooltip,
+                        borderColor: c.tooltipBorder,
+                        borderWidth: c.tooltipBorder === 'transparent' ? 0 : 1,
+                        titleFont: { family: c.font, size: 12 },
+                        titleColor: c.tooltipTitle,
+                        bodyFont: { family: c.font, size: 12 },
+                        bodyColor: c.tooltipBody,
                         padding: 12,
-                        cornerRadius: 8,
+                        cornerRadius: c.cornerRadius,
                         displayColors: true,
                         callbacks: {
                             label: ctx => `${ctx.dataset.label}: $${ctx.parsed.y?.toFixed(2) || '—'}`,
@@ -843,19 +1054,19 @@ DASHBOARD_HTML = """<!DOCTYPE html>
                 scales: {
                     x: {
                         display: true,
-                        grid: { display: false },
+                        grid: { color: c.gridX },
                         ticks: {
                             maxTicksLimit: 8,
-                            font: { family: "'JetBrains Mono'", size: 11 },
-                            color: '#aaa',
+                            font: { family: c.font, size: 11 },
+                            color: c.tick,
                         },
                     },
                     y: {
                         display: true,
-                        grid: { color: '#f0efe9' },
+                        grid: { color: c.grid },
                         ticks: {
-                            font: { family: "'JetBrains Mono'", size: 11 },
-                            color: '#aaa',
+                            font: { family: c.font, size: 11 },
+                            color: c.tick,
                             callback: v => '$' + v.toFixed(0),
                         },
                     },
